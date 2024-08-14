@@ -1,0 +1,232 @@
+CREATE TABLE customer (
+customer_id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100) UNIQUE NOT NULL,
+password VARCHAR(255) NOT NULL,
+phone VARCHAR(20),
+address VARCHAR(255)
+);
+
+INSERT INTO customer (name, email, password, phone, address)
+VALUES
+('John Doe', 'john.doe@example.com', 'password123', '1234567890', '123 Main St, Anytown USA'),
+('Jane Smith', 'jane.smith@example.com', 'pass456', '0987654321', '456 Oak Rd, Anytown USA'),
+('Michael Johnson', 'michael.johnson@example.com', 'mypassword', '5555555555', '789 Elm St, Anytown USA'),
+('Emily Davis', 'emily.davis@example.com', 'secret123', '1112223333', '246 Maple Ave, Anytown USA'),
+('David Lee', 'david.lee@example.com', 'password321', '4445556666', '369 Oak St, Anytown USA'),
+('Sarah Wilson', 'sarah.wilson@example.com', 'pass123', '7778889999', '159 Elm Rd, Anytown USA'),
+('Tom Garcia', 'tom.garcia@example.com', 'mypass456', '2223334444', '753 Maple Blvd, Anytown USA'),
+('Olivia Martinez', 'olivia.martinez@example.com', 'secret456', '6667778888', '951 Oak Ln, Anytown USA'),
+('William Hernandez', 'william.hernandez@example.com', 'password789', '3334445555', '357 Elm Ave, Anytown USA'),
+('Jessica Flores', 'jessica.flores@example.com', 'pass789', '8889990000', '753 Maple St, Anytown USA');
+
+CREATE TABLE category (
+category_id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+description TEXT
+);
+
+INSERT INTO category (name, description)
+VALUES
+('Electronics', 'Includes TVs, laptops, phones, and other electronic devices'),
+('Apparel', 'Includes clothing, shoes, and accessories'),
+('Home & Garden', 'Includes furniture, kitchenware, and gardening supplies'),
+('Sports & Outdoors', 'Includes sports equipment, camping gear, and outdoor accessories'),
+('Books & Media', 'Includes books, movies, and music'),
+('Beauty & Personal Care', 'Includes makeup, skincare, and personal care products'),
+('Toys & Games', 'Includes toys, board games, and video games'),
+('Office Supplies', 'Includes stationery, office furniture, and office equipment'),
+('Automotive', 'Includes car parts, accessories, and tools'),
+('Pet Supplies', 'Includes pet food, toys, and grooming products');
+
+CREATE TABLE product (
+product_id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+description TEXT,
+price DECIMAL(10, 2) NOT NULL,
+stock_quantity INT NOT NULL,
+category_id INT,
+FOREIGN KEY (category_id) REFERENCES category(category_id)
+);
+
+INSERT INTO product (name, description, price, stock_quantity, category_id)
+VALUES
+('Laptop', 'High-performance laptop with 16GB RAM and 512GB SSD', 999.99, 50, 1),
+('Smartphone', 'Flagship smartphone with 5G connectivity', 799.99, 100, 1),
+('T-shirt', 'Comfortable cotton t-shirt in various colors', 19.99, 200, 2),
+('Jeans', 'High-quality denim jeans in classic blue', 49.99, 150, 2),
+('Sofa', 'Stylish and comfortable living room sofa', 599.99, 30, 3),
+('Gardening Tools', 'Set of essential gardening tools', 59.99, 80, 3),
+('Basketball', 'Official size and weight basketball', 29.99, 75, 4),
+('Hiking Backpack', 'Durable and spacious backpack for outdoor adventures', 89.99, 40, 4),
+('Novel', 'Bestselling fiction novel', 14.99, 120, 5),
+('Makeup Palette', 'Eyeshadow palette with a variety of colors', 39.99, 90, 6);
+CREATE TABLE orders (
+order_id INT AUTO_INCREMENT PRIMARY KEY,
+customer_id INT,
+order_date DATE NOT NULL,
+status VARCHAR(20) NOT NULL,
+total_amount DECIMAL(10, 2) NOT NULL,
+FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+);
+INSERT INTO orders (customer_id, order_date, status, total_amount)
+VALUES
+(1, '2023-04-01', 'Pending', 999.99),
+(2, '2023-04-05', 'Shipped', 49.99),
+(3, '2023-04-10', 'Delivered', 599.99),
+(4, '2023-04-15', 'Pending', 89.99),
+(5, '2023-04-20', 'Shipped', 29.99),
+(6, '2023-04-25', 'Delivered', 19.99),
+(7, '2023-05-01', 'Pending', 799.99),
+(8, '2023-05-05', 'Shipped', 39.99),
+(9, '2023-05-10', 'Delivered', 14.99),
+(10, '2023-05-15', 'Pending', 59.99);
+
+CREATE TABLE order_item (
+order_item_id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT,
+product_id INT,
+quantity INT NOT NULL,
+price DECIMAL(10, 2) NOT NULL,
+FOREIGN KEY (order_id) REFERENCES orders(order_id),
+FOREIGN KEY (product_id) REFERENCES product(product_id)
+);
+INSERT INTO order_item (order_id, product_id, quantity, price)
+VALUES
+(1, 1, 1, 999.99),
+(2, 3, 2, 19.99),
+(3, 5, 1, 599.99),
+(4, 8, 1, 89.99),
+(5, 7, 1, 29.99),
+(6, 3, 1, 19.99),
+(7, 2, 1, 799.99),
+(8, 10, 1, 39.99),
+(9, 9, 1, 14.99),
+(10, 6, 2, 59.99);
+
+CREATE TABLE payment (
+payment_id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT,
+payment_date DATE NOT NULL,
+amount DECIMAL(10, 2) NOT NULL,
+payment_method VARCHAR(50) NOT NULL,
+FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+INSERT INTO payment (order_id, payment_date, amount, payment_method)
+VALUES
+(1, '2023-04-01', 999.99, 'Credit Card'),
+(2, '2023-04-05', 49.99, 'Paypal'),
+(3, '2023-04-10', 599.99, 'Debit Card'),
+(4, '2023-04-15', 89.99, 'Credit Card'),
+(5, '2023-04-20', 29.99, 'Paypal'),
+(6, '2023-04-25', 19.99, 'Debit Card'),
+(7, '2023-05-01', 799.99, 'Credit Card'),
+(8, '2023-05-05', 39.99, 'Paypal'),
+(9, '2023-05-10', 14.99, 'Debit Card'),
+(10, '2023-05-15', 59.99, 'Credit Card');
+CREATE TABLE review (
+review_id INT AUTO_INCREMENT PRIMARY KEY,
+product_id INT,
+customer_id INT,
+rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+commentt TEXT,
+review_date DATE NOT NULL,
+FOREIGN KEY (product_id) REFERENCES product(product_id),
+FOREIGN KEY (customer_id) REFERENCES customer(customer_id)
+);
+
+INSERT INTO review (product_id, customer_id, rating, commentt, review_date)
+VALUES
+(1, 1, 4, 'Great product, highly recommended!', '2023-04-15'),
+(2, 2, 3, 'Decent quality, but could be better.', '2023-05-01'),
+(3, 3, 5, 'Exceeded my expectations, love it!', '2023-03-20'),
+(1, 4, 2, 'Disappointed, won not be buying again.', '2023-06-10'),
+(4, 5, 4, 'Reliable and durable, very satisfied.', '2023-07-05'),
+(2, 6, 3, 'Average product, nothing special.', '2023-08-12'),
+(5, 7, 5, 'Best purchase I have made in a while.', '2023-09-18'),
+(3, 8, 4, 'Solid quality, great value for money.', '2023-10-25'),
+(4, 9, 3, 'Not bad, but I have seen better.', '2023-11-30'),
+(5, 10, 5, 'Absolutely amazing, highly recommended.', '2023-12-07');
+
+CREATE TABLE supplier (
+supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+contact_info VARCHAR(255)
+);
+
+INSERT INTO supplier (name, contact_info)
+VALUES
+('ABC Supplies', '123 Main St, Anytown USA, 12345'),
+('XYZ Manufacturing', '456 Oak Rd, Somewhere City, 67890'),
+('Global Import Co.', '789 Elm Ave, Otherplace, 54321'),
+('Reliable Wholesalers', '321 Pine St, Anytown, 98765'),
+('Premier Distributors', '654 Maple Blvd, Someplace, 43210'),
+('Quality Components Inc.', '987 Oak St, Othertown, 76543'),
+('International Suppliers', '159 Elm Ave, Someplace Else, 21098'),
+('Domestic Products Co.', '753 Pine Rd, Anytown, 65432'),
+('Top Tier Manufacturers', '951 Maple St, Somewhere, 09876'),
+('Trusted Importers', '357 Oak Blvd, Otherplace, 54321');
+
+CREATE TABLE shipment (
+shipment_id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT UNIQUE,
+shipment_date DATE NOT NULL,
+delivery_date DATE,
+status VARCHAR(50) NOT NULL,
+tracking_number VARCHAR(100),
+FOREIGN KEY (order_id) REFERENCES orders (order_id)
+);
+
+INSERT INTO shipment (order_id, shipment_date, delivery_date, status, tracking_number)
+VALUES
+(1, '2023-04-20', '2023-04-25', 'Delivered', 'TRACK123456'),
+(2, '2023-05-05', '2023-05-10', 'In Transit', 'TRACK789012'),
+(3, '2023-03-25', '2023-03-30', 'Delivered', 'TRACK345678'),
+(4, '2023-06-15', '2023-06-20', 'Shipped', 'TRACK901234'),
+(5, '2023-07-10', '2023-07-15', 'Delivered', 'TRACK567890'),
+(6, '2023-08-20', '2023-08-25', 'In Transit', 'TRACK234567'),
+(7, '2023-09-23', '2023-09-28', 'Delivered', 'TRACK678901'),
+(8, '2023-10-30', '2023-11-04', 'Shipped', 'TRACK345012'),
+(9, '2023-11-15', '2023-11-20', 'In Transit', 'TRACK678543'),
+(10, '2023-12-12', '2023-12-17', 'Delivered', 'TRACK012345');
+
+CREATE TABLE product_supplier (
+product_id INT,
+supplier_id INT,
+PRIMARY KEY (product_id, supplier_id),
+FOREIGN KEY (product_id) REFERENCES product(product_id),
+FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
+);
+
+INSERT INTO product_supplier (product_id, supplier_id)
+VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(2, 3),
+(3, 2),
+(3, 3),
+(4, 1),
+(4, 2),
+(5, 3),
+(5, 1);
+CREATE TABLE users(
+ username varchar(30) PRIMARY KEY,
+pass varchar(100),
+actives int
+);
+
+INSERT INTO users (username, pass, actives) VALUES
+ ('hieu', '{bcrypt}$2a$10$cFOMGaXPPus7oyKEG6i6UuyC0LupfaYR1tXPf/xL6lP.jRrRB.OCq', 1),
+ ('admin', '{bcrypt}$2a$10$hCxRiXhFckd5lsVMfOpjruwrcothEhpii.5mzNIGYAman/Zo29r16', 1);
+CREATE TABLE authorities(
+ username varchar(30),
+authority varchar(30),
+UNIQUE KEY(username,authority),
+ FOREIGN KEY (username) REFERENCES users(username)
+);
+INSERT INTO authorities (username, authority) VALUES
+ ('admin', 'ROLE_MANAGER'),
+('admin', 'ROLE_USER'),
+('admin', 'ROLE_ADMIN'),
+('hieu', 'ROLE_USER');

@@ -6,15 +6,14 @@ import com.example.WEB.Repository.ProductRepository;
 import com.example.WEB.Repository.ReviewRepository;
 import com.example.WEB.Repository.SupplieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -26,6 +25,19 @@ public class ProductService {
     private SupplieRepository supplieRepository;
     @Autowired
     private Order_ItemRepository orderItemRepository;
+    @Autowired
+    private ReviewService reviewService;
+
+
+    public Product updateProduct(int id, Product theProduct) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ProductId not found"));
+        product.setName(theProduct.getName());
+        product.setDescription(theProduct.getDescription());
+        product.setStockQuantity(theProduct.getStockQuantity());
+        product.setPrice(theProduct.getPrice());
+        return productRepository.save(product);
+    }
 
 //    public void updateReview(Product product, List<Review> reviews) {
 //        Map<Integer, Review> reviewMap = product.getReviews().stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
@@ -86,7 +98,17 @@ public class ProductService {
         return ResponseEntity.notFound().build();
     }
 
-    public ResponseEntity<Product> updateReviews( int productId,  int id,Review theReviews) {
+    public ResponseEntity<Review> updateReview(int productId, int reviewId, Review theReview ){
+        Product product=productRepository.findById(productId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found"));
+
+        Review review= reviewService.updateReview(reviewId,theReview).getBody();
+        review.setProduct(product);
+        Review updateReview=reviewRepository.save(review);
+        return ResponseEntity.ok(updateReview);
+    }
+
+    public ResponseEntity<Product> updateReviews(int productId, int id, Review theReviews) {
         Optional<Product> productResult = productRepository.findById(productId);
         if (productResult.isPresent()) {
             Product product = productResult.get();
@@ -165,35 +187,37 @@ public class ProductService {
         return ResponseEntity.notFound().build();
     }
 
-    public void deleteReview(int id,int reviewId){
-        Optional<Product> result=productRepository.findById(id);
-        if(result.isPresent()){
-            Optional<Review> reviewOptional=reviewRepository.findById(reviewId);
-            if(reviewOptional.isPresent()){
-                Review review=reviewOptional.get();
+    public void deleteReview(int id, int reviewId) {
+        Optional<Product> result = productRepository.findById(id);
+        if (result.isPresent()) {
+            Optional<Review> reviewOptional = reviewRepository.findById(reviewId);
+            if (reviewOptional.isPresent()) {
+                Review review = reviewOptional.get();
                 review.setProduct(null);
                 reviewRepository.save(review);
             }
         }
     }
-    public void deleteOrderItem(int id,int orderitemId){
-        Optional<Product> result=productRepository.findById(id);
-        if(result.isPresent()){
-            Optional<OrderItem> orderItemOptional=orderItemRepository.findById(orderitemId);
-            if(orderItemOptional.isPresent()){
-                OrderItem orderItem=orderItemOptional.get();
+
+    public void deleteOrderItem(int id, int orderitemId) {
+        Optional<Product> result = productRepository.findById(id);
+        if (result.isPresent()) {
+            Optional<OrderItem> orderItemOptional = orderItemRepository.findById(orderitemId);
+            if (orderItemOptional.isPresent()) {
+                OrderItem orderItem = orderItemOptional.get();
                 orderItem.setProduct(null);
                 orderItemRepository.save(orderItem);
             }
         }
     }
-    public void deleteSupplier(int id,int supplierId){
-        Optional<Product> result=productRepository.findById(id);
-        if(result.isPresent()){
-            Product product=result.get();
-            Optional<Supplier> supplierOptional=supplieRepository.findById(supplierId);
-            if(supplierOptional.isPresent()){
-                Supplier supplier=supplierOptional.get();
+
+    public void deleteSupplier(int id, int supplierId) {
+        Optional<Product> result = productRepository.findById(id);
+        if (result.isPresent()) {
+            Product product = result.get();
+            Optional<Supplier> supplierOptional = supplieRepository.findById(supplierId);
+            if (supplierOptional.isPresent()) {
+                Supplier supplier = supplierOptional.get();
                 supplier.setProducts(null);
                 product.setSuppliers(null);
                 supplieRepository.save(supplier);

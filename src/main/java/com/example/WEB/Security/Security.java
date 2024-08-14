@@ -28,19 +28,18 @@ public class Security {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(configurer -> configurer
                 .requestMatchers(HttpMethod.GET, "/api/category").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/category/**").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/category/{categoryId}").hasRole("USER")
 
-                .requestMatchers(HttpMethod.PUT, "/api/category/{id}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/updateProduct/{Id}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/updateReview/{categoryId}/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/updateSupplier/{categoryId}/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/updateOrderItem/{categoryId}/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateProduct/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateReview/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateSupplier/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateOrderItem/{productId}").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.POST, "/api/category").hasRole("MANAGER")
 
-
-                .requestMatchers(HttpMethod.DELETE, "/api/category/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/category/{id}/deleteProduct/{productId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/category/{categoryId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/category/{categoryId}/deleteProduct/{productId}").hasRole("ADMIN")
 
 
 
@@ -106,14 +105,15 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/product").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/product/**").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/product/getCategoryId/{id}").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/product/{productId}").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/product/getCategoryId/{productId}").hasRole("USER")
 
-                .requestMatchers(HttpMethod.PUT, "/api/product/updateProduct/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/updateReview/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/updateSupplier/{productId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/updateOrderItem/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateReview/{id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/updateReview/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateReview/{reviewId}").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.POST, "/api/product").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/product/addReview/{id}").hasRole("MANAGER")
@@ -121,10 +121,10 @@ public class Security {
                 .requestMatchers(HttpMethod.POST, "/api/product/addOrderItem/{id}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/product").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.DELETE, "/api/product/{id}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/product/{id}/deleteReview/{reviewId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/product/{id}/deleteSupplier/{supplierId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/product/{id}/deleteOrderItem/{orderitemId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteReview/{reviewId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteSupplier/{supplierId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteOrderItem/{orderitemId}").hasRole("ADMIN")
 
 
 
@@ -137,14 +137,13 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/review").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/review/**").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/review/{reviewId}").hasRole("USER")
 
-                .requestMatchers(HttpMethod.PUT, "/api/review/{id}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/review/{id}/{productId}/{customerId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/review/{reviewId}").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.POST, "/api/review/{productId}/{customerId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.POST, "/api/review").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.DELETE, "/api/review/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/review/{reviewId}").hasRole("ADMIN")
 
 
                 .requestMatchers(HttpMethod.GET, "/api/shipment").hasRole("USER")
