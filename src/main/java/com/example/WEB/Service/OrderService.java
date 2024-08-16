@@ -4,16 +4,13 @@ import com.example.WEB.Entity.OrderItem;
 import com.example.WEB.Entity.Orders;
 import com.example.WEB.Entity.Payment;
 import com.example.WEB.Entity.Shipment;
-import com.example.WEB.Repository.Order_ItemRepository;
+import com.example.WEB.Repository.OrderItemRepository;
 import com.example.WEB.Repository.OrdersRepository;
 import com.example.WEB.Repository.PaymentRepository;
 import com.example.WEB.Repository.ShipmentRepository;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.criteria.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,7 @@ public class OrderService {
     @Autowired
     private OrdersRepository ordersRepository;
     @Autowired
-    private Order_ItemRepository orderItemRepository;
+    private OrderItemRepository orderItemRepository;
 
     public void updateOrderItems(Orders orders, List<OrderItem> theOrderItem) {
         Map<Integer, OrderItem> orderItemMap = orders.getOrderItems().stream()

@@ -2,11 +2,8 @@ package com.example.WEB.Controller;
 
 import com.example.WEB.Entity.ProductSupplier;
 import com.example.WEB.Entity.ProductSupplierId;
-import com.example.WEB.Repository.ProductRepository;
 import com.example.WEB.Repository.ProductSupplierRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-public class Product_SupplierController {
+public class ProductSupplierController {
     @Autowired
     private ProductSupplierRepository productSupplierRepository;
 

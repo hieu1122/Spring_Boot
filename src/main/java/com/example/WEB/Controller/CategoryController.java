@@ -23,59 +23,61 @@ public class CategoryController {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
     private CategoryService categoryService;
-    @Autowired
-    private ProductService productService;
 
     @GetMapping()
-    public List<Category> getCategory() {
-        return categoryRepository.findAll();
+    public ResponseEntity<List<Category>> getCategory() {
+        List<Category> category=categoryRepository.findAll();
+        return ResponseEntity.ok(category);
     }
 
     @GetMapping("/{categoryId}")
-    public Category getOneCategory(@PathVariable int categoryId) {
-        return categoryRepository.findById(categoryId).orElse(null);
+    public ResponseEntity<Category> getOneCategory(@PathVariable int categoryId) {
+        Category category=categoryService.Condition(categoryId);
+        return ResponseEntity.ok(category);
     }
 
     @PostMapping()
-    public Category addCategory(@RequestBody Category theCategory) {
-        return categoryRepository.save(theCategory);
+    public ResponseEntity<Category> addCategory(@RequestBody Category theCategory) {
+        Category category= categoryRepository.save(theCategory);
+        return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{categoryId}")
-    public Category updateCategory(@PathVariable int categoryId, @RequestBody Category theCategory) {
-        return categoryService.updateCategory(categoryId, theCategory);
+    public ResponseEntity<Category> updateCategory(@PathVariable int categoryId, @RequestBody Category theCategory) {
+        Category category= categoryService.updateCategory(categoryId, theCategory);
+        return ResponseEntity.ok(category);
     }
 
     @PutMapping("/{categoryId}/updateProduct/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int categoryId,@PathVariable int productId, @RequestBody Product product) {
+    public ResponseEntity<Category> updateProduct(@PathVariable int categoryId,@PathVariable int productId, @RequestBody Product product) {
         return categoryService.updateProduct(categoryId,productId, product);
     }
 
-//    @PutMapping("/{categoryId}/updateReview/{productId}")
-//    public ResponseEntity<Review> updateReview(@PathVariable int categoryId, @PathVariable int productId, @RequestBody List<Review> reviews) {
-//        return categoryService.Review(categoryId, productId, reviews).getBody();
-//    }
-
-    @PutMapping("/{categoryId}/updateSupplier/{productId}")
-    public Category addSupplier(@PathVariable int categoryId, @PathVariable int productId, @RequestBody List<Supplier> suppliers) {
-        return categoryService.Supplier(categoryId, productId, suppliers).getBody();
+    @PutMapping("/{categoryId}/updateProduct/{productId}/updateReview/{reviewId}")
+    public ResponseEntity<Category> updateReview(@PathVariable int categoryId, @PathVariable int productId,@PathVariable int reviewId, @RequestBody Review theReview) {
+        return categoryService.updateReview(categoryId, productId, reviewId,theReview);
     }
 
-    @PutMapping("/{categoryId}/updateOrderItem/{productId}")
-    public Category addOrderItem(@PathVariable int categoryId, @PathVariable int productId, @RequestBody List<OrderItem> orderItems) {
-        return categoryService.OrderItem(categoryId, productId, orderItems).getBody();
+    @PutMapping("/{categoryId}/updateProduct/{productId}/updateSupplier/{suppllierId}")
+    public ResponseEntity<Category> addSupplier(@PathVariable int categoryId, @PathVariable int productId, @PathVariable int suppllierId, @RequestBody Supplier theSupplier) {
+        return categoryService.updateSupplier(categoryId, productId,suppllierId, theSupplier);
+    }
+
+    @PutMapping("/{categoryId}/updateProduct/{productId}/updateOrderItem/{orderId}")
+    public ResponseEntity<Category> addOrderItem(@PathVariable int categoryId, @PathVariable int productId,@PathVariable int orderId, @RequestBody OrderItem orderItem) {
+        return categoryService.updateOrderItem(categoryId, productId, orderId,orderItem);
     }
 
     @DeleteMapping("/{categoryId}")
-    public void deleteCategory(@PathVariable int categoryId) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable int categoryId) {
         categoryRepository.deleteById(categoryId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{categoryId}/deleteProduct/{productId}")
-    public void deleteCategory(@PathVariable int categoryId, @PathVariable int productId) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable int categoryId, @PathVariable int productId) {
         categoryService.deleteProduct(categoryId, productId);
+        return ResponseEntity.noContent().build();
     }
 }

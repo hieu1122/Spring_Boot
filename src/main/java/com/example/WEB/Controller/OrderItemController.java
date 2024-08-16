@@ -1,14 +1,12 @@
 package com.example.WEB.Controller;
 
 import com.example.WEB.Entity.OrderItem;
-import com.example.WEB.Entity.Orders;
-import com.example.WEB.Entity.Product;
-import com.example.WEB.Entity.ProductSupplierId;
-import com.example.WEB.Repository.Order_ItemRepository;
+import com.example.WEB.Repository.OrderItemRepository;
 import com.example.WEB.Repository.OrdersRepository;
-import com.example.WEB.Repository.ProductRepository;
 import com.example.WEB.Service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,37 +14,38 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/orderitem")
 public class OrderItemController {
     @Autowired
-    private Order_ItemRepository orderItemRepository;
+    private OrderItemRepository orderItemRepository;
     @Autowired
     private OrderItemService orderItemService;
     @Autowired
     private OrdersRepository ordersRepository;
 
-    @GetMapping("/orderitem")
+    @GetMapping()
     public List<OrderItem> getOrderItem() {
         return orderItemRepository.findAll();
     }
 
-    @GetMapping("/orderitem/{id}")
-    public OrderItem getOneOrderItem(@PathVariable int id) {
-        return orderItemRepository.findById(id).orElse(null);
+    @GetMapping("/{orderId}")
+    public OrderItem getOneOrderItem(@PathVariable int orderId) {
+        return orderItemRepository.findById(orderId).orElse(null);
     }
 
-    @PutMapping("/orderitem/{id}/{order_id}/{product_id}")
-    public ResponseEntity<OrderItem> updateOrderItem(@PathVariable int id, @PathVariable int order_id, @PathVariable int product_id, @RequestBody OrderItem theOrderItem) {
-        return orderItemService.updateOrderItem(id, order_id, product_id, theOrderItem);
+    @PutMapping("/{orderId}")
+    public ResponseEntity<OrderItem> updateOrderItem(@PathVariable int orderId, @RequestBody OrderItem theOrderItem) {
+        return orderItemService.updateOrderItem(orderId, theOrderItem);
     }
 
-    @PostMapping("/orderitem/{order_id}/{product_id}")
-    public ResponseEntity<OrderItem> addOrderItem(@PathVariable int order_id, @PathVariable int product_id, @RequestBody OrderItem theOrderItem) {
-        return orderItemService.addOrderItem(order_id, product_id, theOrderItem);
+    @PostMapping()
+    public ResponseEntity<OrderItem> addOrderItem(@RequestBody OrderItem theOrderItem) {
+        OrderItem orderItem=orderItemRepository.save(theOrderItem);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderItem);
     }
 
-    @DeleteMapping("/orderitem/{id}")
-    public void deleteOrderItem(@PathVariable int id) {
-        orderItemRepository.deleteById(id);
+    @DeleteMapping("/{orderId}")
+    public void deleteOrderItem(@PathVariable int orderId) {
+        orderItemRepository.deleteById(orderId);
     }
 }

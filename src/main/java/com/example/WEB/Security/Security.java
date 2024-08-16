@@ -32,9 +32,9 @@ public class Security {
 
                 .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateProduct/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateReview/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateSupplier/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateOrderItem/{productId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateProduct/{productId}/updateReview/{reviewId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateProduct/{productId}/updateSupplier/{supplierId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/category/{categoryId}/updateProduct/{productId}/updateOrderItem/{orderId}").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.POST, "/api/category").hasRole("MANAGER")
 
@@ -67,13 +67,13 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/orderitem").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/orderitem/**").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/orderitem/{orderId}").hasRole("USER")
 
-                .requestMatchers(HttpMethod.PUT, "/api/orderitem/{id}/{order_id}/{product_id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/orderitem/{orderId}").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.POST, "/api/orderitem/{order_id}/{product_id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.POST, "/api/orderitem").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.DELETE, "/api/orderitem/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/orderitem/{orderId}").hasRole("ADMIN")
 
 
                 .requestMatchers(HttpMethod.GET, "/api/order").hasRole("USER")
@@ -110,21 +110,16 @@ public class Security {
 
                 .requestMatchers(HttpMethod.PUT, "/api/product").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/updateSupplier/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/updateOrderItem/{productId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/updateReview/{productId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateReview/{reviewId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateSupplier/{supplierId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateOrderItem/{orderId}").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.POST, "/api/product").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/product/addReview/{id}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/product/addSupplier/{id}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/product/addOrderItem/{id}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/product").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteReview/{reviewId}").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteSupplier/{supplierId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteOrderItem/{orderitemId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/product/{productId}/deleteOrderItem/{orderId}").hasRole("ADMIN")
 
 
 
@@ -154,10 +149,13 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/supplier").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/supplier/**").hasRole("USER")
-                .requestMatchers(HttpMethod.PUT, "/api/supplier/{id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.GET, "/api/supplier/{supplierId}").hasRole("USER")
+
                 .requestMatchers(HttpMethod.POST, "/api/supplier").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/supplier/**").hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.PUT, "/api/supplier/{supplierId}").hasRole("MANAGER")
+
+                .requestMatchers(HttpMethod.DELETE, "/api/supplier/{supplierId}").hasRole("ADMIN")
         );
         http.httpBasic(Customizer.withDefaults());
         http.csrf(csrf -> csrf.disable());

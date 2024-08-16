@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Supplier")
@@ -20,8 +22,7 @@ public class Supplier {
     @Column(name = "contact_info")
     private String contactInfo;
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "suppliers")
-//    @JsonBackReference
+    @ManyToMany(mappedBy = "suppliers")
     @JsonIgnore
-    private List<Product> products;
+    private Set<Product> products = new HashSet<>();
 }
