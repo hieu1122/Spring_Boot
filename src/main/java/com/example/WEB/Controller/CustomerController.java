@@ -9,8 +9,10 @@ import com.example.WEB.Service.CustomerService;
 import com.example.WEB.Service.OrderService;
 import jakarta.servlet.http.PushBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,173 +22,76 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/customer")
 public class CustomerController {
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
     private CustomerService customerService;
-    @Autowired
-    private OrdersRepository ordersRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private ShipmentRepository shipmentRepository;
-    @Autowired
-    private OrderService orderService;
 
-    @GetMapping("/customer")
-    public List<Customer> getCustomer() {
-        return customerRepository.findAll();
+    @GetMapping()
+    public ResponseEntity<List<Customer>> getCustomer() {
+        List<Customer> customers= customerRepository.findAll();
+        return ResponseEntity.ok(customers);
     }
 
-    @GetMapping("/customer/{id}")
-    public Customer getOneCustomer(@PathVariable int id) {
-        return customerRepository.findById(id).orElse(null);
+    @GetMapping("/{customerId}")
+    public ResponseEntity<Customer> getOneCustomer(@PathVariable int customerId) {
+        Customer customer=customerRepository.findById(customerId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"CustomerId not found"));
+        return ResponseEntity.ok(customer);
     }
 
-//    @PostMapping("/customer")
-//    public Customer addCustomer(@RequestBody Customer theCustomer) {
-//        Customer customer = new Customer();
-//        customerService.addCustomer(customer, theCustomer);
-//        return customerRepository.save(customer);
-//    }
-
-    @PostMapping("/customer/addCustomer")
-    public Customer addCustomer(@RequestBody Customer customer){
-        return customerRepository.save(customer);
+    @PostMapping()
+    public ResponseEntity< Customer> addCustomer(@RequestBody Customer theCustomer){
+        Customer customer=customerRepository.save(theCustomer);
+        return ResponseEntity.ok(customer);
     }
 
-    @PostMapping("/customer/addOrder/{customerId}")
-    public Customer addOrder(@PathVariable int customerId, @RequestBody List<Orders> orders) {
-       return customerService.Orders(customerId,orders).getBody();
+    @PutMapping("/{customerId}")
+    public ResponseEntity<Customer> updateCustomer(@PathVariable int customerId, @RequestBody Customer theCustomer) {
+        return customerService.updateCustomer(customerId,theCustomer);
     }
 
-    @PostMapping("/customer/addPayment/{customerId}/{orderId}")
-    public ResponseEntity<Customer> addPayment(@PathVariable int customerId, @PathVariable int orderId, @RequestBody Payment payment) {
-        return customerService.Payment(customerId,orderId,payment);
+    @PutMapping("/{customerId}/updateOrder/{orderId}")
+    public ResponseEntity<Customer> updateOrder(@PathVariable int customerId,@PathVariable int orderId, @RequestBody Orders theOrder) {
+       return customerService.updateOrders(customerId,orderId,theOrder);
     }
 
-    @PostMapping("/customer/addShipment/{customerId}/{orderId}")
-    public ResponseEntity<Customer> addShipment(@PathVariable int customerId, @PathVariable int orderId, @RequestBody Shipment shipment) {
-        return customerService.Shipment(customerId,orderId,shipment);
+    @PutMapping("/{customerId}/updateOrder/{orderId}/updatePayment/{paymentId}")
+    public ResponseEntity<Customer> updatePayment(@PathVariable int customerId,@PathVariable int orderId, @PathVariable int paymentId, @RequestBody Payment thePayment) {
+        return customerService.updatePayment(customerId,orderId,paymentId,thePayment);
     }
 
-    @PostMapping("/customer/addOrderItem/{customerId}/{orderId}")
-    public ResponseEntity<Customer> addOrderItem(@PathVariable int customerId, @PathVariable int orderId, @RequestBody List<OrderItem> orderItems) {
-        return customerService.OrderItem(customerId,orderId,orderItems);
+    @PutMapping("/{customerId}/updateOrder/{orderId}/updateShipment/{shipmentId}")
+    public ResponseEntity<Customer> updateShipment(@PathVariable int customerId,@PathVariable int orderId, @PathVariable int shipmentId, @RequestBody Shipment theShipment) {
+        return customerService.updateShipment(customerId,orderId,shipmentId,theShipment);
     }
 
-    @PostMapping("/customer/addReview/{customerId}")
-    public ResponseEntity<Customer> addReview(@PathVariable int customerId, @RequestBody List<Review> reviews) {
-        return customerService.Review(customerId,reviews);
+    @PutMapping("/{customerId}/updateOrder/{orderId}/updateOrderItem/{itemId}")
+    public ResponseEntity<Customer> updateOrderItem(@PathVariable int customerId,@PathVariable int orderId, @PathVariable int itemId, @RequestBody OrderItem theOrderItem) {
+        return customerService.updateOrderItem(customerId,orderId,itemId,theOrderItem);
     }
 
-    @DeleteMapping("/customer/{id}")
-    public void deleteCustomer(@PathVariable int id) {
-        customerRepository.deleteById(id);
+    @PutMapping("/{customerId}/updateReview/{reviewId}")
+    public ResponseEntity<Customer> updateReview(@PathVariable int customerId, @PathVariable int reviewId, @RequestBody Review theReview) {
+        return customerService.updateReview(customerId,reviewId,theReview);
     }
 
-    @DeleteMapping("/customer/{id}/deleteOrder/{orderId}")
-    public void deleteCustomer(@PathVariable int id,@PathVariable int orderId) {
-        customerService.deleteOrder(id, orderId);
-    }
-    @DeleteMapping("/customer/{id}/deleteReview/{reviewId}")
-    public void deleteReview(@PathVariable int id,@PathVariable int reviewId) {
-        customerService.deleteReview(id, reviewId);
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity <Void> deleteCustomer(@PathVariable int customerId) {
+        customerRepository.deleteById(customerId);
+        return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/customer")
-//    public ResponseEntity<Customer> addCustomer(@RequestBody Customer theCustomer) {
-//        Customer customer = new Customer();
-//        customer.setName(theCustomer.getName());
-//        customer.setEmail(theCustomer.getEmail());
-//        customer.setPassword(theCustomer.getPassword());
-//        customer.setPhone(theCustomer.getPhone());
-//        customer.setAddress(theCustomer.getAddress());
-//
-//        if (theCustomer.getOrders() != null) {
-//            List<Orders> orders = theCustomer.getOrders();
-//            customer.setOrders(orders);
-//            for (Orders orders1 : orders) {
-//                orders1.setCustomer(customer);
-//
-//                //payment
-//                if (orders1.getPayments() != null) {
-//                    orderService.addPayment(orders1,orders1.getPayments());
-//                }
-//
-//                //Shipment
-//                if (orders1.getShipments() != null) {
-//                    orderService.addShipment(orders1,orders1.getShipments());
-//                }
-//
-//                //OrderItem
-//                if (orders1.getShipments() != null) {
-//                    orderService.addOrderItem(orders1,orders1.getOrderItems());
-//                }
-//            }
-//            List<Review> reviews=theCustomer.getReviews();
-//            customer.setReviews(reviews);
-//            for(Review review : reviews){
-//                review.setCustomer(customer);
-//            }
-//            Customer addCustomer = customerRepository.save(customer);
-//            return ResponseEntity.ok(addCustomer);
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
-
-//    @PutMapping("/customer/{id}")
-//    public Customer updateCustomer(@PathVariable int id, @RequestBody Customer theCustomer) {
-//        Optional<Customer> result = customerRepository.findById(id);
-//        if (result.isPresent()) {
-//            Customer customer = result.get();
-//
-//            customer.setName(theCustomer.getName());
-//            customer.setEmail(theCustomer.getEmail());
-//            customer.setPassword(theCustomer.getPassword());
-//            customer.setPhone(theCustomer.getPhone());
-//            customer.setAddress(theCustomer.getAddress());
-//
-//            //Orders
-//            customerService.updateOrders(customer, theCustomer.getOrders());
-//
-//            //Payment
-//            for (Orders orders : customer.getOrders()) {
-//                for (Orders orders1 : theCustomer.getOrders()) {
-//                    if (orders.getOrderId() == orders1.getOrderId()) {
-//                        orderService.updatePayment(orders, orders1.getPayments());
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            //Shipment
-//            for (Orders orders : customer.getOrders()) {
-//                for (Orders orders1 : theCustomer.getOrders()) {
-//                    if (orders.getOrderId() == orders1.getOrderId()) {
-//                        orderService.updateShipment(orders, orders1.getShipments());
-//                    }
-//                }
-//            }
-//
-//            //OrderItem
-//            for (Orders orders : customer.getOrders()) {
-//                for (Orders orders1 : theCustomer.getOrders()) {
-//                    if (orders.getOrderId() == orders1.getOrderId()) {
-//                        orderService.updateOrderItems(orders, orders1.getOrderItems());
-//                    }
-//                }
-//            }
-//
-//            //Review
-//            customerService.updateReview(customer, theCustomer.getReviews());
-//
-//            return customerRepository.save(customer);
-//        }
-//        throw new RuntimeException("Customer with id " + id + " not found");
-//    }
-
-
+    @DeleteMapping("/{customerId}/deleteOrder/{orderId}")
+    public ResponseEntity<Void> deleteCustomer(@PathVariable int customerId,@PathVariable int orderId) {
+        customerService.deleteOrder(customerId, orderId);
+        return ResponseEntity.noContent().build();
+    }
+    @DeleteMapping("/{customerId}/deleteReview/{reviewId}")
+    public ResponseEntity<Void> deleteReview(@PathVariable int customerId,@PathVariable int reviewId) {
+        customerService.deleteReview(customerId, reviewId);
+        return ResponseEntity.noContent().build();
+    }
 }

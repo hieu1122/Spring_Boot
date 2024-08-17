@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,17 +21,18 @@ public class OrderItemController {
     private OrderItemRepository orderItemRepository;
     @Autowired
     private OrderItemService orderItemService;
-    @Autowired
-    private OrdersRepository ordersRepository;
 
     @GetMapping()
-    public List<OrderItem> getOrderItem() {
-        return orderItemRepository.findAll();
+    public ResponseEntity <List<OrderItem>> getOrderItem() {
+        List<OrderItem> orderItems=orderItemRepository.findAll();
+         return ResponseEntity.ok(orderItems);
     }
 
     @GetMapping("/{orderId}")
-    public OrderItem getOneOrderItem(@PathVariable int orderId) {
-        return orderItemRepository.findById(orderId).orElse(null);
+    public ResponseEntity<OrderItem> getOneOrderItem(@PathVariable int orderId) {
+        OrderItem orderItem=orderItemRepository.findById(orderId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"OrderItemId not found"));
+        return ResponseEntity.ok(orderItem);
     }
 
     @PutMapping("/{orderId}")
@@ -45,7 +47,8 @@ public class OrderItemController {
     }
 
     @DeleteMapping("/{orderId}")
-    public void deleteOrderItem(@PathVariable int orderId) {
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable int orderId) {
         orderItemRepository.deleteById(orderId);
+        return ResponseEntity.noContent().build();
     }
 }

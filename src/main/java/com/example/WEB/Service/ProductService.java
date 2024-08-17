@@ -67,10 +67,10 @@ public class ProductService {
         return ResponseEntity.ok(Condition(productId));
     }
 
-    public ResponseEntity<Product> updateOrderItem(int productId, int orderId, OrderItem orderItem) {
+    public ResponseEntity<Product> updateOrderItem(int productId, int itemId, OrderItem orderItem) {
         Condition(productId);
 
-        OrderItem orderItem1 = orderItemService.updateOrderItem(orderId, orderItem).getBody();
+        OrderItem orderItem1 = orderItemService.updateOrderItem(itemId, orderItem).getBody();
         orderItem1.setProduct(Condition(productId));
         orderItemRepository.save(orderItem1);
         return ResponseEntity.ok(Condition(productId));

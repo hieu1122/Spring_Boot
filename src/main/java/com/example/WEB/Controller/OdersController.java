@@ -4,162 +4,60 @@ import com.example.WEB.Entity.*;
 import com.example.WEB.Repository.*;
 import com.example.WEB.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/order")
 public class OdersController {
     @Autowired
     private OrdersRepository ordersRepository;
     @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
     private OrderService orderService;
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
 
-    @GetMapping("/order")
-    public List<Orders> getOrder() {
-        return ordersRepository.findAll();
+    @GetMapping()
+    public ResponseEntity<List<Orders>> getOrder() {
+        List<Orders> orders=ordersRepository.findAll();
+        return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/order/{id}")
-    public Orders getOneOrder(@PathVariable int id) {
-        return ordersRepository.findById(id).orElse(null);
+    @GetMapping("/{orderId}")
+    public ResponseEntity <Orders> getOneOrder(@PathVariable int orderId) {
+        Orders orders= ordersRepository.findById(orderId).orElse(null);
+        return ResponseEntity.ok(orders);
     }
 
-    @GetMapping("/order/getPaymentId/{id}")
-    public List<Orders> getPaymentId(@PathVariable int id) {
-        return ordersRepository.findByPaymentsPaymentId(id);
+    @PostMapping()
+    public ResponseEntity<Orders> addOrder(@RequestBody Orders theOrders) {
+        Orders orders=ordersRepository.save(theOrders);
+        return ResponseEntity.ok(orders);
     }
 
-    @PostMapping("/order")
-    public Orders addOrder(@RequestBody Orders theOrders) {
-        return ordersRepository.save(theOrders);
+    @PutMapping("/{orderId}")
+    public ResponseEntity <Orders> updateOrder(@PathVariable int orderId, @RequestBody Orders theOrder) {
+        return orderService.updateOrder(orderId, theOrder);
     }
 
-    @PostMapping("/order/addPayment/{orderId}")
-    public Orders addPayment(@PathVariable int orderId, @RequestBody Payment thePayment) {
-        return orderService.Payment(orderId, thePayment).getBody();
+    @PutMapping("/{orderId}/updatePayment/{paymentId}")
+    public ResponseEntity<Orders> updatePayment(@PathVariable int orderId,@PathVariable int paymentId, @RequestBody Payment thePayment) {
+        return orderService.updatePayment(orderId, paymentId,thePayment);
     }
 
-    @PostMapping("/order/addShipment/{orderId}")
-    public Orders addShipment(@PathVariable int orderId, @RequestBody Shipment shipment) {
-        return orderService.Shipment(orderId, shipment).getBody();
+    @PutMapping("/{orderId}/updateShipment/{shipmentId}")
+    public ResponseEntity<Orders> updateShipment(@PathVariable int orderId,@PathVariable int shipmentId, @RequestBody Shipment theShipment) {
+        return orderService.updateShipment(orderId, shipmentId,theShipment);
     }
 
-    @PostMapping("/order/addOrderItem/{orderId}")
-    public Orders addOrderItem(@PathVariable int orderId, @RequestBody List<OrderItem> orderItems) {
-        return orderService.OrderItem(orderId, orderItems).getBody();
+    @PutMapping("/{orderId}/updateOrderItem/{itemId}")
+    public ResponseEntity<Orders> updateOrderItem(@PathVariable int orderId, @PathVariable int itemId, @RequestBody OrderItem orderItem) {
+        return orderService.updateOrderItems(orderId, itemId,orderItem);
     }
 
-    @DeleteMapping("/order/{id}")
-    public void deleteOrder(@PathVariable int id) {
-        ordersRepository.deleteById(id);
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable int orderId) {
+        ordersRepository.deleteById(orderId);
+        return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping("/order/{id}/deletePayment/{paymentId}")
-    public void deletePayment(@PathVariable int id, @PathVariable int paymentId) {
-        orderService.deletePayment(id, paymentId);
-    }
-
-    @DeleteMapping("/order/{id}/deleteShipment/{shipmentId}")
-    public void deleteShipment(@PathVariable int id, @PathVariable int shipmentId) {
-        orderService.deleteShipment(id, shipmentId);
-    }
-
-    @DeleteMapping("/order/{id}/deleteOrderItem/{orderitemId}")
-    public void deleteOrderItem(@PathVariable int id, @PathVariable int orderitemId) {
-        orderService.deleteOrderItem(id, orderitemId);
-    }
-
-//    @PostMapping("/order/{id}")
-//    public ResponseEntity<Orders> addOrder(@PathVariable int id, @RequestBody Orders theOrders) {
-//        Optional<Customer> result = customerRepository.findById(id);
-//        {
-//            Customer customer = result.get();
-//
-//            Orders orders = new Orders();
-//            orders.setCustomer(customer);
-//            orders.setTotalAmount(theOrders.getTotalAmount());
-//            orders.setStatus(theOrders.getStatus());
-//            orders.setDate(theOrders.getDate());
-//
-//            //Payment
-//            if (theOrders.getPayments() != null) {
-//                Payment payment = theOrders.getPayments();
-//                payment.setOrder(orders);
-//                orders.setPayments(payment);
-//            }
-//
-//            //Shipment
-//            if (theOrders.getShipments() != null) {
-//                Shipment shipment = theOrders.getShipments();
-//                shipment.setOrder(orders);
-//                orders.setShipments(shipment);
-//            }
-//
-//            //OrderItem
-//            if (theOrders.getOrderItems() != null) {
-//                List<OrderItem> orderItems = theOrders.getOrderItems();
-//                orders.setOrderItems(orderItems);
-//                for (OrderItem orderItem : orderItems) {
-//                    orderItem.setOrders(orders);
-//                }
-//            }
-//
-//            Orders addOrder = ordersRepository.save(orders);
-//            return ResponseEntity.ok(addOrder);
-//        }
-//    }
-
-//    @PutMapping("/order/{orderId}")
-//    public ResponseEntity<Orders> updateOrder(@PathVariable int orderId, @RequestBody Orders theOrders) {
-//        Optional<Orders> result = ordersRepository.findById(orderId);
-//        if (result.isPresent()) {
-//            Orders orders = result.get();
-//
-//            //Orders
-//            orders.setDate(theOrders.getDate());
-//            orders.setStatus(theOrders.getStatus());
-//            orders.setTotalAmount(theOrders.getTotalAmount());
-//
-//            //Payment
-//            Payment payment = orders.getPayments();
-//            if (payment == null) {
-//                payment = new Payment();
-//                orders.setPayments(payment);
-//            }
-//            payment.setPaymentId(theOrders.getPayments().getPaymentId());
-//            payment.setDate(theOrders.getPayments().getDate());
-//            payment.setAmount(theOrders.getPayments().getAmount());
-//            payment.setPaymentMethod(theOrders.getPayments().getPaymentMethod());
-//            paymentRepository.save(payment);
-//
-//            //Shipment
-//            Shipment shipment = orders.getShipments();
-//            if (shipment == null) {
-//                shipment = new Shipment();
-//                orders.setShipments(shipment);
-//            }
-//            shipment.setShipmentId(theOrders.getShipments().getShipmentId());
-//            shipment.setShipmentDate(theOrders.getShipments().getShipmentDate());
-//            shipment.setTrackingNumber(theOrders.getShipments().getTrackingNumber());
-//            shipment.setDeliveryDate(theOrders.getShipments().getDeliveryDate());
-//            shipment.setStatus(theOrders.getShipments().getStatus());
-//            shipmentRepository.save(shipment);
-//
-//            //OrderItem
-//            orderService.updateOrderItems(orders, theOrders.getOrderItems());
-//
-//            Orders updateOrder = ordersRepository.save(orders);
-//            return ResponseEntity.ok(updateOrder);
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
-
 }

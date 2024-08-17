@@ -5,8 +5,11 @@ import com.example.WEB.Repository.CustomerRepository;
 import com.example.WEB.Repository.OrdersRepository;
 import com.example.WEB.Repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -24,128 +27,96 @@ public class CustomerService {
     private OrderService orderService;
     @Autowired
     private ReviewRepository reviewRepository;
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private OrderItemService orderItemService;
 
-    public void updateOrders(Customer customer, List<Orders> theOrders) {
-        Map<Integer, Orders> result = customer.getOrders().stream().collect(Collectors.toMap(Orders::getOrderId, Function.identity()));
-        List<Orders> newOrders = theOrders.stream().map(orders -> result.merge(orders.getOrderId(), orders, (existing, update) -> {
-            existing.setDate(update.getDate());
-            existing.setStatus(update.getStatus());
-            existing.setTotalAmount(update.getTotalAmount());
-            return existing;
-        })).collect(Collectors.toList());
-
-        customer.setOrders(newOrders);
+    public Customer Condition(int customerId){
+        Customer customer=customerRepository.findById(customerId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"CustomerId not found"));
+        return customer;
     }
 
-    public void updateReview(Customer customer, List<Review> theReview) {
-        Map<Integer, Review> reviewMap = customer.getReviews().stream().collect(Collectors.toMap(Review::getReviewId, Function.identity()));
-        List<Review> newReview = theReview.stream().map(review -> (reviewMap.merge(review.getReviewId(), review, (existing, update) -> {
-            existing.setRating(update.getRating());
-            existing.setComment(update.getComment());
-            existing.setReviewDate(update.getReviewDate());
-            return existing;
-        }))).collect(Collectors.toList());
-        customer.setReviews(newReview);
+    public ResponseEntity<Customer> updateCustomer(int customerId, Customer theCustomer){
+        Customer customer=customerRepository.findById(customerId)
+                .map(customer1 -> {
+                    customer1.setName(theCustomer.getName());
+                    customer1.setEmail(theCustomer.getEmail());
+                    customer1.setPassword(theCustomer.getPassword());
+                    customer1.setPhone(theCustomer.getPhone());
+                    customer1.setAddress(theCustomer.getAddress());
+                    return customerRepository.save(customer1);
+                }).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"CustomerId not found"));
+        return ResponseEntity.ok(customer);
     }
 
-    public void setCustomer(Customer customer, Customer theCustomer) {
-        customer.setAddress(theCustomer.getAddress());
-        customer.setName(theCustomer.getName());
-        customer.setPassword(theCustomer.getPassword());
-        customer.setPhone(theCustomer.getPhone());
-        customer.setEmail(theCustomer.getEmail());
+    public ResponseEntity<Customer> updateOrders(int customerId,int orderId,Orders theOrder){
+        Condition(customerId);
+
+        Orders orders=orderService.updateOrder(orderId,theOrder).getBody();
+        orders.setCustomer(Condition(customerId));
+        ordersRepository.save(orders);
+        return ResponseEntity.ok(Condition(customerId));
     }
 
-    public ResponseEntity<Customer> Orders(int customerId, List<Orders> orders) {
-        Optional<Customer> result = customerRepository.findById(customerId);
-        if (result.isPresent()) {
-            Customer customer = result.get();
-            customer.setOrders(orders);
-            for (Orders orders1 : orders) {
-                orders1.setCustomer(customer);
-            }
-            Customer addOrder = customerRepository.save(customer);
-            return ResponseEntity.ok(addOrder);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Customer> updatePayment(int customerId,int orderId, int paymentId,Payment thePayment){
+        Condition(customerId);
+
+        Orders orders=orderService.updatePayment(orderId,paymentId,thePayment).getBody();
+        orders.setCustomer(Condition(customerId));
+        ordersRepository.save(orders);
+        return ResponseEntity.ok(Condition(customerId));
     }
 
-    public ResponseEntity<Customer> Review(int customerId, List<Review> reviews) {
-        Optional<Customer> result = customerRepository.findById(customerId);
-        if (result.isPresent()) {
-            Customer customer = result.get();
+    public ResponseEntity<Customer> updateShipment(int customerId,int orderId, int shipmentId,Shipment theShipment){
+        Condition(customerId);
 
-            customer.setReviews(reviews);
-            for (Review review : reviews) {
-                review.setCustomer(customer);
-            }
-            Customer addOrder = customerRepository.save(customer);
-            return ResponseEntity.ok(addOrder);
-        }
-        return ResponseEntity.notFound().build();
+        Orders orders=orderService.updateShipment(orderId,shipmentId,theShipment).getBody();
+        orders.setCustomer(Condition(customerId));
+        ordersRepository.save(orders);
+        return ResponseEntity.ok(Condition(customerId));
     }
 
-    public ResponseEntity<Customer> Payment(int customerId,int orderId,Payment payment){
-        Optional<Customer> result = customerRepository.findById(customerId);
-        if (result.isPresent()) {
-            Customer customer = result.get();
-            Optional<Orders> result1 = ordersRepository.findById(orderId);
-            if (result1.isPresent()) {
-                orderService.Payment(orderId, payment);
-            }
-            Customer addOrder = customerRepository.save(customer);
-            return ResponseEntity.ok(addOrder);
-        }
-        return ResponseEntity.notFound().build();
-    }
-    public ResponseEntity<Customer> Shipment(int customerId,int orderId,Shipment shipment){
-        Optional<Customer> result = customerRepository.findById(customerId);
-        if (result.isPresent()) {
-            Customer customer = result.get();
-            Optional<Orders> result1 = ordersRepository.findById(orderId);
-            if (result1.isPresent()) {
-                orderService.Shipment(orderId, shipment);
-            }
-            Customer addOrder = customerRepository.save(customer);
-            return ResponseEntity.ok(addOrder);
-        }
-        return ResponseEntity.notFound().build();
-    }
-    public ResponseEntity<Customer> OrderItem(int customerId,int orderId,List<OrderItem> orderItems){
-        Optional<Customer> result = customerRepository.findById(customerId);
-        if (result.isPresent()) {
-            Customer customer = result.get();
-            Optional<Orders> result1 = ordersRepository.findById(orderId);
-            if (result1.isPresent()) {
-                orderService.OrderItem(orderId, orderItems);
-            }
-            Customer addOrder = customerRepository.save(customer);
-            return ResponseEntity.ok(addOrder);
-        }
-        return ResponseEntity.notFound().build();
-    }
-    public void deleteOrder(int id, int orderId) {
-        Optional<Customer> customerOptional = customerRepository.findById(id);
-        if (customerOptional.isPresent()) {
-            Optional<Orders> ordersOptional = ordersRepository.findById(orderId);
-            if (ordersOptional.isPresent()) {
-                Orders orders = ordersOptional.get();
+    public ResponseEntity<Customer> updateOrderItem(int customerId,int orderId, int itemId,OrderItem theOrderItem){
+        Condition(customerId);
 
-                orders.setCustomer(null);
-                ordersRepository.save(orders);
-            }
-        }
+        Orders orders=orderService.updateOrderItems(orderId,itemId,theOrderItem).getBody();
+        orders.setCustomer(Condition(customerId));
+        ordersRepository.save(orders);
+        return ResponseEntity.ok(Condition(customerId));
     }
-    public void deleteReview(int id, int reviewId) {
-        Optional<Customer> customerOptional = customerRepository.findById(id);
-        if (customerOptional.isPresent()) {
-            Optional<Review> reviewOptional= reviewRepository.findById(reviewId);
-            if (reviewOptional.isPresent()) {
-                Review review = reviewOptional.get();
 
-                review.setCustomer(null);
-                reviewRepository.save(review);
-            }
-        }
+    public ResponseEntity<Customer> updateReview(int customerId,int reviewId,Review theReview) {
+        Condition(customerId);
+
+        Review review=reviewService.updateReview(reviewId,theReview).getBody();
+        review.setCustomer(Condition(customerId));
+        reviewRepository.save(review);
+        return ResponseEntity.ok(Condition(customerId));
+    }
+
+    public ResponseEntity<Void> deleteOrder(int customerId, int orderId) {
+        Condition(customerId);
+
+        ordersRepository.findById(orderId)
+                .map(orders1 -> {
+                    orders1.setCustomer(null);
+                    return ordersRepository.save(orders1);
+                }).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"OrderId not found"));
+        return ResponseEntity.noContent().build();
+    }
+
+    public ResponseEntity<Void> deleteReview(int customerId, int reviewId) {
+        Condition(customerId);
+
+        reviewRepository.findById(reviewId)
+                .map(review -> {
+                    review.setCustomer(null);
+                    return reviewRepository.save(review);
+                }).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"OrderId not found"));
+        return ResponseEntity.noContent().build();
     }
 }

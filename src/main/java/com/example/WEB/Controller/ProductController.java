@@ -58,9 +58,9 @@ public class ProductController {
         return productService.updateSupplier(productId,supplierId, suppliers);
     }
 
-    @PutMapping("/{productId}/updateOrderItem/{orderId}")
-    public ResponseEntity<Product> updateOrderItem(@PathVariable int productId,@PathVariable int orderId, @RequestBody OrderItem orderItem) {
-        return productService.updateOrderItem(productId,orderId,orderItem);
+    @PutMapping("/{productId}/updateOrderItem/{itemId}")
+    public ResponseEntity<Product> updateOrderItem(@PathVariable int productId,@PathVariable int itemId, @RequestBody OrderItem orderItem) {
+        return productService.updateOrderItem(productId,itemId,orderItem);
     }
 
     @DeleteMapping("/{productId}")
@@ -76,12 +76,14 @@ public class ProductController {
     }
 
     @DeleteMapping("/{productId}/deleteSupplier/{supplierId}")
-    public void deleteSupplier(@PathVariable int productId,@PathVariable int supplierId) {
+    public ResponseEntity<Void> deleteSupplier(@PathVariable int productId,@PathVariable int supplierId) {
         productService.deleteSupplier(productId, supplierId);
+        return ResponseEntity.noContent().build();
     }
     @DeleteMapping("/{productId}/deleteOrderItem/{orderId}")
-    public void deleteOrderItem(@PathVariable int productId,@PathVariable int orderId) {
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable int productId, @PathVariable int orderId) {
         productService.deleteOrderItem(productId, orderId);
+        return ResponseEntity.noContent().build();
     }
 
 }

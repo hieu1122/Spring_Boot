@@ -9,8 +9,10 @@ import com.example.WEB.Repository.OrdersRepository;
 import com.example.WEB.Repository.PaymentRepository;
 import com.example.WEB.Repository.ShipmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -28,49 +30,56 @@ public class OrderService {
     private OrdersRepository ordersRepository;
     @Autowired
     private OrderItemRepository orderItemRepository;
+    @Autowired
+    private OrderItemService orderItemService;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private ShipmentService shipmentService;
 
-    public void updateOrderItems(Orders orders, List<OrderItem> theOrderItem) {
-        Map<Integer, OrderItem> orderItemMap = orders.getOrderItems().stream()
-                .collect(Collectors.toMap(OrderItem::getOrderItemId, Function.identity()));
-        List<OrderItem> newOrderItem = theOrderItem.stream()
-                .map(item -> orderItemMap.merge(item.getOrderItemId(), item, (existing, update) -> {
-                    existing.setQuantity(update.getQuantity());
-                    existing.setPrice(update.getPrice());
-                    return existing;
-                })).collect(Collectors.toList());
-        orders.setOrderItems(newOrderItem);
+    public Orders Condition(int orderId){
+        Orders orders=ordersRepository.findById(orderId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"OrderId not found"));
+        return orders;
     }
 
-    public void updatePayment(Orders orders, Payment thePayment) {
-        Payment payment = orders.getPayments();
-        if (payment == null) {
-            payment = new Payment();
-            orders.setPayments(payment);
-        }
-        payment.setPaymentMethod(thePayment.getPaymentMethod());
-        payment.setDate(thePayment.getDate());
-        payment.setAmount(thePayment.getAmount());
+    public ResponseEntity<Orders> updateOrder(int orderId, Orders theOrders){
+        Orders orders=ordersRepository.findById(orderId)
+                .map(orders1 -> {
+                    orders1.setDate(theOrders.getDate());
+                    orders1.setStatus(theOrders.getStatus());
+                    orders1.setStatus(theOrders.getStatus());
+                    orders1.setTotalAmount(theOrders.getTotalAmount());
+                    return ordersRepository.save(orders1);
+                }).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"OrderId not found"));
+        return ResponseEntity.ok(orders);
+    }
+
+    public ResponseEntity<Orders> updateOrderItems(int orderId, int itemId,OrderItem theOrderItem) {
+       Condition(orderId);
+
+       OrderItem orderItem=orderItemService.updateOrderItem(itemId,theOrderItem).getBody();
+       orderItem.setOrders(Condition(orderId));
+       orderItemRepository.save(orderItem);
+       return ResponseEntity.ok(Condition(orderId));
+    }
+
+    public ResponseEntity<Orders> updatePayment(int orderId, int paymentId, Payment thepayment) {
+        Condition(orderId);
+
+        Payment payment=paymentService.updatePayment(paymentId,thepayment).getBody();
+        payment.setOrder(Condition(orderId));
         paymentRepository.save(payment);
-
+        return ResponseEntity.ok(Condition(orderId));
     }
 
-    public void updateShipment(Orders orders, Shipment theShipment) {
-        Shipment shipment = orders.getShipments();
-        if (shipment == null) {
-            shipment = new Shipment();
-            orders.setShipments(shipment);
-        }
-        shipment.setShipmentDate(theShipment.getShipmentDate());
-        shipment.setTrackingNumber(theShipment.getTrackingNumber());
-        shipment.setStatus(theShipment.getStatus());
-        shipment.setDeliveryDate(theShipment.getDeliveryDate());
+    public ResponseEntity<Orders> updateShipment(int orderId, int shipmentId, Shipment theShipment) {
+        Condition(orderId);
+
+        Shipment shipment=shipmentService.updateShipment(shipmentId,theShipment).getBody();
+        shipment.setOrder(Condition(orderId));
         shipmentRepository.save(shipment);
-    }
-
-    public void setOrders(Orders orders, Orders theOrders) {
-        orders.setDate(theOrders.getDate());
-        orders.setTotalAmount(theOrders.getTotalAmount());
-        orders.setStatus(theOrders.getStatus());
+        return ResponseEntity.ok(Condition(orderId));
     }
 
     public ResponseEntity<Orders> Shipment(int orderId, Shipment shipment) {
@@ -112,44 +121,4 @@ public class OrderService {
         }
         return ResponseEntity.notFound().build();
     }
-
-    public void deletePayment(int id, int paymentId) {
-        Optional<Orders> orderResult = ordersRepository.findById(id);
-        if (orderResult.isPresent()) {
-            Optional<Payment> paymentOptional = paymentRepository.findById(paymentId);
-            if (paymentOptional.isPresent()) {
-                Payment payment = paymentOptional.get();
-
-                payment.setOrder(null);
-                paymentRepository.save(payment);
-            }
-        }
-    }
-
-    public void deleteShipment(int id, int shipmentId) {
-        Optional<Orders> orderResult = ordersRepository.findById(id);
-        if (orderResult.isPresent()) {
-            Optional<Shipment> shipmentOptional = shipmentRepository.findById(shipmentId);
-            if (shipmentOptional.isPresent()) {
-                Shipment shipment = shipmentOptional.get();
-
-                shipment.setOrder(null);
-                shipmentRepository.save(shipment);
-            }
-        }
-    }
-
-    public void deleteOrderItem(int id, int orderitemId) {
-        Optional<Orders> orderResult = ordersRepository.findById(id);
-        if (orderResult.isPresent()) {
-            Optional<OrderItem> orderItemOptional = orderItemRepository.findById(orderitemId);
-            if (orderItemOptional.isPresent()) {
-                OrderItem orderItem = orderItemOptional.get();
-
-                orderItem.setOrders(null);
-                orderItemRepository.save(orderItem);
-            }
-        }
-    }
-
 }

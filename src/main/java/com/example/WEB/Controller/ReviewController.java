@@ -8,8 +8,10 @@ import com.example.WEB.Repository.ProductRepository;
 import com.example.WEB.Repository.ReviewRepository;
 import com.example.WEB.Service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,18 +25,22 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @GetMapping()
-    public List<Review> getReview() {
-        return reviewRepository.findAll();
+    public ResponseEntity<List<Review>> getReview() {
+        List<Review> review=reviewRepository.findAll();
+        return ResponseEntity.ok(review);
     }
 
     @GetMapping("/{reviewId}")
-    public Review getOneReview(@PathVariable int reviewId) {
-        return reviewRepository.findById(reviewId).orElse(null);
+    public ResponseEntity<Review> getOneReview(@PathVariable int reviewId) {
+        Review review=reviewRepository.findById(reviewId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(review);
     }
 
     @PostMapping()
-    public Review addReview(@RequestBody Review theReview) {
-        return reviewRepository.save(theReview);
+    public ResponseEntity <Review> addReview(@RequestBody Review theReview) {
+        Review review=reviewRepository.save(theReview);
+        return ResponseEntity.ok(review);
     }
 
     @PutMapping("/{reviewId}")
@@ -43,7 +49,8 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    public void deleteReview(@PathVariable int reviewId) {
+    public ResponseEntity<Void> deleteReview(@PathVariable int reviewId) {
         reviewRepository.deleteById(reviewId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -7,58 +7,50 @@ import com.example.WEB.Repository.PaymentRepository;
 import com.example.WEB.Repository.ProductRepository;
 import com.example.WEB.Service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/payment")
 public class PaymentController {
     @Autowired
     private PaymentRepository paymentRepository;
     @Autowired
     private PaymentService paymentService;
 
-    @GetMapping("/payment")
-    public List<Payment> getPayment() {
-        return paymentRepository.findAll();
+    @GetMapping()
+    public ResponseEntity <List<Payment>> getPayment() {
+        List<Payment> payments= paymentRepository.findAll();
+        return ResponseEntity.ok(payments);
     }
 
-    @GetMapping("/payment/{id}")
-    public Payment getOnePayment(@PathVariable int id) {
-        return paymentRepository.findById(id).orElse(null);
+    @GetMapping("/{paymentId}")
+    public ResponseEntity<Payment> getOnePayment(@PathVariable int paymentId) {
+        Payment payment=paymentRepository.findById(paymentId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"PaymentId not found"));
+        return ResponseEntity.ok(payment);
     }
 
-    @GetMapping("/payment/getOrderId/{id}")
-    public List<Payment> getOrder(@PathVariable int id) {
-        return paymentRepository.findByOrderOrderId(id);
+    @PostMapping()
+    public ResponseEntity<Payment> addPayment(@RequestBody Payment thePayment) {
+        Payment payment= paymentRepository.save(thePayment);
+        return ResponseEntity.ok(payment);
     }
 
-    @PostMapping("/payment")
-    public Payment addPayment(@RequestBody Payment payment) {
-        return paymentRepository.save(payment);
+    @PutMapping("/{paymentId}")
+    public ResponseEntity<Payment> updatePayment(@PathVariable int paymentId, @RequestBody Payment thePayment) {
+        return paymentService.updatePayment(paymentId, thePayment);
     }
 
-    @PutMapping("/payment/{id}")
-    public ResponseEntity<Payment> updatePayment(@PathVariable int id, @RequestBody Payment thePayment) {
-        return paymentService.updatePayment(id, thePayment);
+    @DeleteMapping("/{paymentId}")
+    public ResponseEntity <Void> deletePayment(@PathVariable int paymentId) {
+        paymentRepository.deleteById(paymentId);
+        return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping("/payment/{paymentId}/{orderId}")
-    public void deletePayment(@PathVariable int paymentId, @PathVariable int orderId) {
-        paymentRepository.delete(paymentId, orderId);
-    }
-
-    @DeleteMapping("/payment/{paymentId}")
-    public void deletePayment1(@PathVariable int paymentId) {
-        Optional<Payment> result=paymentRepository.findById(paymentId);
-        if(result.isPresent()){
-            Payment payment=result.get();
-            paymentRepository.delete(payment);
-        }
-    }
-
 }

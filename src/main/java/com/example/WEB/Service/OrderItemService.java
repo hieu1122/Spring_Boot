@@ -17,41 +17,7 @@ import java.util.Optional;
 @Service
 public class OrderItemService {
     @Autowired
-    private OrdersRepository ordersRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
     private OrderItemRepository orderItemRepository;
-//    public void updateOrderItem(Product product, List<OrderItem> orderItems){
-//        Map<Integer,OrderItem> result=product.getOrderItems().stream()
-//                .collect(Collectors.toMap(OrderItem::getOrderItemId, Function.identity()));
-//        List<OrderItem> newOrderItem=orderItems.stream()
-//                .map(orderItem -> result.merge(orderItem.getOrderItemId(),orderItem,(existing,update)->{
-//                   existing.setQuantity(update.getQuantity());
-//                   existing.setPrice(update.getPrice());
-//                   return existing;
-//                })).collect(Collectors.toList());
-//        product.setOrderItems(newOrderItem);
-//    }
-
-    public ResponseEntity<OrderItem> addOrderItem(@PathVariable int order_id, @PathVariable int product_id, @RequestBody OrderItem theOrderItem) {
-        Optional<Orders> ordersId=ordersRepository.findById(order_id);
-        Optional<Product> productId=productRepository.findById(product_id);
-        if(ordersId.isPresent() && productId.isPresent()){
-            Orders orders=ordersId.get();
-            Product product=productId.get();
-
-            OrderItem orderItem=new OrderItem();
-            orderItem.setOrders(orders);
-            orderItem.setProduct(product);
-            orderItem.setPrice(theOrderItem.getPrice());
-            orderItem.setQuantity(theOrderItem.getQuantity());
-
-            OrderItem addOrderItem=orderItemRepository.save(orderItem);
-            return ResponseEntity.ok(addOrderItem);
-        }
-        return ResponseEntity.notFound().build();
-    }
 
     public ResponseEntity<OrderItem> updateOrderItem(int orderId, OrderItem theOrderItem) {
         OrderItem updateOrderItem=orderItemRepository.findById(orderId)

@@ -21,10 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class ReviewService {
     @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
     private ReviewRepository reviewRepository;
 
     public ResponseEntity<Review> updateReview(@PathVariable int reviewId,@RequestBody Review theReview){

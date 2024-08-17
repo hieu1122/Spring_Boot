@@ -46,21 +46,20 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/customer").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/customer/**").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/customer/{customerId}").hasRole("USER")
 
-                .requestMatchers(HttpMethod.PUT, "/api/customer/{id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}/updateOrder/{orderId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}/updateOrder/{orderId}/updatePayment/{paymentId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}/updateOrder/{orderId}/updateShipment/{shipmentId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}/updateOrder/{orderId}/updateOrderItem/{itemId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/customer/{customerId}/updateReview/{reviewId}").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.POST, "/api/customer").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addCustomer").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addOrder/{customerId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addPayment/{customerId}/{orderId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addShipment/{customerId}/{orderId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addOrderItem/{customerId}/{orderId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/customer/addReview/{customerId}").hasRole("MANAGER")
 
-                .requestMatchers(HttpMethod.DELETE, "/api/customer/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/customer/{id}/deleteOrder/{orderId}").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/customer/{id}/deleteReview/{orderId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/customer/{customerId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/customer/{customerId}/deleteOrder/{orderId}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/customer/{customerId}/deleteReview/{orderId}").hasRole("ADMIN")
 
 
 
@@ -76,15 +75,20 @@ public class Security {
                 .requestMatchers(HttpMethod.DELETE, "/api/orderitem/{orderId}").hasRole("ADMIN")
 
 
+
+
+
                 .requestMatchers(HttpMethod.GET, "/api/order").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/order/**").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/order/getPaymentId/{id}").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/order/{orderId}").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/api/order/getPaymentId/{orderId}").hasRole("USER")
 
                 .requestMatchers(HttpMethod.PUT, "/api/order/{orderId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/order").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/order/{orderId}/updatePayment/{paymentId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/order/{orderId}/updateShipment/{shipmentId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/order/{orderId}/updateOrderItem/{itemId}").hasRole("MANAGER")
+
 
                 .requestMatchers(HttpMethod.POST, "/api/order").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.POST, "/api/order/{id}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/order/addPayment/{orderId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/order/addShipment/{orderId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.POST, "/api/order/addOrderItem/{orderId}").hasRole("MANAGER")
@@ -96,11 +100,12 @@ public class Security {
 
 
                 .requestMatchers(HttpMethod.GET, "/api/payment").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/payment/**").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/payment/getOrderId/{id}").hasRole("USER")
-                .requestMatchers(HttpMethod.PUT, "/api/payment/{id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.GET, "/api/payment/{paymentId}").hasRole("USER")
+
+                .requestMatchers(HttpMethod.PUT, "/api/payment/{paymentId}").hasRole("MANAGER")
+
                 .requestMatchers(HttpMethod.POST, "/api/payment").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/payment/{paymentId}/{orderId}").hasRole("ADMIN")
+
                 .requestMatchers(HttpMethod.DELETE, "/api/payment/{paymentId}").hasRole("ADMIN")
 
 
@@ -112,7 +117,7 @@ public class Security {
                 .requestMatchers(HttpMethod.PUT, "/api/product/{productId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateReview/{reviewId}").hasRole("MANAGER")
                 .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateSupplier/{supplierId}").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateOrderItem/{orderId}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/api/product/{productId}/updateOrderItem/{itemId}").hasRole("MANAGER")
 
                 .requestMatchers(HttpMethod.POST, "/api/product").hasRole("MANAGER")
 
@@ -141,11 +146,20 @@ public class Security {
                 .requestMatchers(HttpMethod.DELETE, "/api/review/{reviewId}").hasRole("ADMIN")
 
 
+
+
+
                 .requestMatchers(HttpMethod.GET, "/api/shipment").hasRole("USER")
-                .requestMatchers(HttpMethod.GET, "/api/shipment/**").hasRole("USER")
-                .requestMatchers(HttpMethod.PUT, "/api/shipment/{id}").hasRole("MANAGER")
+                .requestMatchers(HttpMethod.GET, "/api/shipment/{shipmentId}").hasRole("USER")
+
+                .requestMatchers(HttpMethod.PUT, "/api/shipment/{shipmentId}").hasRole("MANAGER")
+
                 .requestMatchers(HttpMethod.POST, "/api/shipment").hasRole("MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/api/shipment/**").hasRole("ADMIN")
+
+                .requestMatchers(HttpMethod.DELETE, "/api/shipment/{shipmentId}").hasRole("ADMIN")
+
+
+
 
 
                 .requestMatchers(HttpMethod.GET, "/api/supplier").hasRole("USER")
